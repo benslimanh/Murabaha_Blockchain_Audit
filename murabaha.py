@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import hashlib
 import datetime
-from io import BytesIO  # مكتبة للتعامل مع الملفات في الذاكرة
+from io import BytesIO  # Library for in-memory file handling
 
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Islamic Murabaha System", layout="wide")
@@ -97,48 +97,50 @@ with col2:
         st.divider()
         st.markdown("### 📥 Export Professional Report")
 
-        # --- بداية السحر: تحويل الملف إلى Excel منسق ---
+        # --- Excel Generation & Formatting Logic ---
         buffer = BytesIO()
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            # 1. كتابة البيانات
+            # 1. Write Data
             df.to_excel(writer, index=False, sheet_name='Audit Log')
             
-            # 2. الحصول على كائنات التنسيق
+            # 2. Get Workbook/Worksheet Objects
             workbook = writer.book
             worksheet = writer.sheets['Audit Log']
             
-            # 3. تعريف الأنماط (Styles)
+            # 3. Define Styles
             header_format = workbook.add_format({
                 'bold': True,
                 'text_wrap': True,
                 'valign': 'top',
-                'fg_color': '#004C99',
+                'fg_color': '#004C99', # Corporate Blue
                 'font_color': '#FFFFFF',
                 'border': 1
             })
             
-            # --- التعديل هنا: أضفنا text_wrap: True ---
+            # --- Text Wrap Enabled here ---
             cell_format = workbook.add_format({
                 'border': 1,
                 'valign': 'vcenter',
-                'text_wrap': True  # هذا الأمر يجبر النص على البقاء داخل العمود
+                'text_wrap': True  # Ensures text stays within the column width
             })
 
-            # 4. تطبيق التنسيق على الأعمدة
+            # 4. Apply Column Formatting
             worksheet.set_column('A:A', 20, cell_format) # Step
             worksheet.set_column('B:B', 30, cell_format) # Description
             worksheet.set_column('C:C', 20, cell_format) # Timestamp
             worksheet.set_column('D:D', 20, cell_format) # Status
-            worksheet.set_column('E:E', 50, cell_format) # Hash (سيصبح النص الآن مرتباً داخله)
+            worksheet.set_column('E:E', 50, cell_format) # Hash (Text will now wrap inside)
 
-            # 5. تطبيق تنسيق العناوين
+            # 5. Apply Header Formatting
             for col_num, value in enumerate(df.columns.values):
                 worksheet.write(0, col_num, value, header_format)
 
-        # تجهيز الملف للتحميل
+        # Prepare Download Button
         st.download_button(
             label="Download Excel Report (.xlsx)",
             data=buffer,
             file_name='Murabaha_Audit_Report.xlsx',
             mime='application/vnd.ms-excel'
         )
+    else:
+        st.info("Waiting for transactions...")
