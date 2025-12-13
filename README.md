@@ -1,4 +1,5 @@
 # 🏦 Blockchain-Based Murabaha Audit System
+Abstract: Operational risk in Islamic Financial Institutions (IFIs) often stems from human error in executing the strict chronological sequence of Murabaha contracts, specifically the prohibition of selling an asset before constructive possession (Qabd). This project presents a FinTech solution to mitigate "Sequence Violation" risks by automating Sharia compliance. Using a Python-based architecture and SHA-256 cryptographic hashing, I developed a prototype that creates an immutable digital ledger for transaction steps. The system technically enforces the logical dependency between the Promise (Wa'd), Ownership (Qabd), and Sale (Bay'), making it computationally impossible to execute a sale prior to verified ownership. This study demonstrates how blockchain-inspired logic can bridge the gap between theoretical Sharia standards (AAOIFI No. 8) and practical execution, shifting the audit paradigm from post-transaction detection to pre-transaction prevention.
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://murabaha-blockchain-audit.streamlit.app/)
 ### 📜 Project Overview
