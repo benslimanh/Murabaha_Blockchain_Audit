@@ -19,3 +19,29 @@ This represents an educational FinTech prototype designed to simulate an **Autom
 
 ---
 *Developed by: Bensliman Hamza - Management & Finance Student*
+
+
+### 📊 System Architecture & Workflow
+Here is the strict chronological sequence enforced by the algorithm:
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant B as Bank
+    participant L as Blockchain Ledger (Audit)
+
+    Note over C, B: Phase 1: Promise (Wa'd)
+    C->>B: 1. Request Asset (e.g. Toyota Camry)
+    B->>L: Generate Hash #1 (Request + Timestamp)
+    L-->>B: Log Transaction (Step 1 Locked)
+
+    Note over B: Phase 2: Ownership (Qabd)
+    B->>B: 2. Buy Asset from Supplier
+    B->>L: Generate Hash #2 (Ownership + Hash #1)
+    Note right of L: Chaining prevents backdating
+    L-->>B: Log Transaction (Step 2 Locked)
+
+    Note over C, B: Phase 3: Murabaha Sale (Bay')
+    B->>C: 3. Sell Asset (Cost + Profit)
+    B->>L: Generate Hash #3 (Sale + Hash #2)
+    L-->>B: Transaction Complete ✅
