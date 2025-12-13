@@ -1,5 +1,6 @@
 # 🏦 Blockchain-Based Murabaha Audit System
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://murabaha-blockchain-audit.streamlit.app/)
 ### 📜 Project Overview
 This represents an educational FinTech prototype designed to simulate an **Automated Sharia Audit Trail**. The system addresses the operational risk of non-compliance in *Murabaha* transactions (specifically sequence violations) by enforcing strict chronological execution using cryptographic hashing.
 
