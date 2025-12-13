@@ -47,10 +47,11 @@ sequenceDiagram
     B->>C: 3. Sell Asset (Cost + Profit)
     B->>L: Generate Hash #3 (Sale + Hash #2)
     L-->>B: Transaction Complete ✅
+```
 ## 🚀 Future Roadmap & Limitations
 This project is currently a **Proof of Concept (PoC)**. Future development stages will focus on:
 
 1.  **Smart Contract Deployment:** Migrating the logic from Python simulation to actual **Solidity (Ethereum)** or **Hyperledger Fabric** smart contracts.
 2.  **Identity Verification:** Integrating KYC/AML APIs to verify the "Client" and "Bank" identities digitally.
 3.  **Core Banking Integration:** Connecting the engine with real banking APIs (e.g., Temenos or Oracle Flexcube) to fetch real asset data.
-4.  **AI Fraud Detection:** Using Machine Learning to flag suspicious patterns in transaction timestamps.
+4.  **AI Fraud Detection:** Using Machine Learning to flag suspicious patterns in transaction timestamps.```
