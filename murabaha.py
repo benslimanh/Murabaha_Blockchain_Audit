@@ -3,73 +3,72 @@ import pandas as pd
 import hashlib
 import datetime
 from io import BytesIO
-from fpdf import FPDF  
+from fpdf import FPDF
 
-
-# --- 1. Page Configuration ---
+# --- 1. Page Configuration (Must be the very first command) ---
 st.set_page_config(page_title="Islamic Murabaha System", layout="wide", page_icon="🏦")
+
+# ==========================================
+# 🔐 SECURE LOGIN SYSTEM ()
+# ==========================================
+
+# Login status configuration
+if 'authentication_status' not in st.session_state:
+    st.session_state['authentication_status'] = False
+
+def login_page():
+    # Design an elegant login page in the middle
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.image("https://cdn-icons-png.flaticon.com/512/2480/2480421.png", width=100) # أيقونة بنك
+        st.title("🔒 Bank Staff Portal")
+        st.markdown("Please sign in to access the Murabaha Audit System.")
+        
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit_button = st.form_submit_button("Sign In")
+            
+            if submit_button:
+                if username == "admin" and password == "1234":
+                    st.session_state['authentication_status'] = True
+                    st.success("Login Successful!")
+                    st.rerun() # Refresh the page to go to the app
+                else:
+                    st.error("❌ Incorrect Username or Password")
+
+# If the user is not logged in, display the login page and stop.
+if st.session_state['authentication_status'] == False:
+    login_page()
+    st.stop() # 🛑 This prevents the rest of the application from appearing.
+
+
+
+# Logout button in the side menu
+with st.sidebarReload the page to go to the application.
+    st.write(f"👤 User: **Admin**")
+    if st.button("Log Out"):
+        st.session_state['authentication_status'] = False
+        st.rerun()
+    st.divider()
+
+# --- Debut R ---
+
 st.title("🏦 Blockchain Murabaha Audit System")
 st.markdown("### AAOIFI-Compliant Audit Engine & Financial Simulator")
 
-
-# --- NEW: Login System ---
-def check_password():
-    """Returns `True` if the user had the correct password."""
-
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if st.session_state["username"] in ["admin", "banker"] and st.session_state["password"] == "1234":
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store password
-        else:
-            st.session_state["password_correct"] = False
-
-    if "password_correct" not in st.session_state:
-        # First run, show inputs
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", on_change=password_entered, key="password")
-        return False
-    
-    elif not st.session_state["password_correct"]:
-        # Password incorrect, show input + error
-        st.text_input("Username", key="username")
-        st.text_input("Password", type="password", on_change=password_entered, key="password")
-        st.error("😕 User not found or wrong password")
-        return False
-    
-    else:
-        # Password correct
-        return True
-
-if check_password():
-    # --- IF LOGIN SUCCESSFUL, RUN THE APP ---
-    
-    # ضع هنا كل الكود السابق الخاص بالتطبيق (بداية من العنوان st.title وما بعده)
-    # قم بعمل Indentation (إزاحة) لكل الكود القديم ليكون داخل هذه الـ if
-    
-    st.sidebar.success(f"Login Successful: {st.session_state['username']}")
-    if st.sidebar.button("Logout"):
-        st.session_state["password_correct"] = False
-        st.rerun()
-
-    # ... [PASTE YOUR EXISTING APP CODE HERE] ...
-    st.title("🏦 Blockchain Murabaha Audit System")
-    # ... بقية الكود ...
-
-# --- 2. Helper Functions ---
-
+# --- Helper Functions ---
 def generate_hash(data):
-    """Generates SHA-256 Hash for the blockchain ledger."""
     sha = hashlib.sha256()
     sha.update(data.encode('utf-8'))
     return sha.hexdigest()
 
 def calculate_schedule(total_amount, months):
-    """Generates the amortization schedule (Monthly Payments)."""
     monthly_payment = total_amount / months
     schedule = []
     remaining_balance = total_amount
-    
     for i in range(1, months + 1):
         payment = monthly_payment
         remaining_balance -= payment
@@ -82,19 +81,16 @@ def calculate_schedule(total_amount, months):
     return pd.DataFrame(schedule)
 
 def create_contract_pdf(client_name, asset, price, logs):
-    """Generates a professional PDF contract with Blockchain Hashes."""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    
-    # -- Header --
+    # Header
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(0, 10, txt="Islamic Murabaha Contract", ln=True, align='C')
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 10, txt="Automated Sharia-Compliant Transaction (AAOIFI No.8)", ln=True, align='C')
     pdf.ln(10)
-    
-    # -- Contract Details --
+    # Details
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Transaction Details:", ln=True)
     pdf.set_font("Arial", size=12)
@@ -103,42 +99,36 @@ def create_contract_pdf(client_name, asset, price, logs):
     pdf.cell(0, 10, txt=f"Total Murabaha Price: ${price:,.2f}", ln=True)
     pdf.cell(0, 10, txt=f"Contract Date: {datetime.date.today()}", ln=True)
     pdf.ln(10)
-    
-    # -- Blockchain Audit Trail --
+    # Hash
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, txt="Digital Audit Trail (Immutable Ledger)", ln=True)
-    pdf.set_font("Courier", size=9) # Courier font looks technical
-    
+    pdf.set_font("Courier", size=9)
     pdf.multi_cell(0, 8, txt="The following cryptographic hashes verify the sequence integrity:")
     pdf.ln(2)
-    
     for log in logs:
         clean_line = f"[{log['Step']}] {log['Timestamp']}\nHash: {log['Block Hash']}\n"
         pdf.multi_cell(0, 8, txt=clean_line, border=1)
         pdf.ln(2)
-        
-    # -- Signature --
+    # Signature
     pdf.ln(20)
     pdf.cell(0, 10, txt="_" * 40, ln=True)
     pdf.cell(0, 10, txt="Authorized Digital Signature", ln=True)
-    
     return pdf.output(dest='S').encode('latin-1')
 
-# --- 3. Session State ---
+# --- Session State ---
 if 'logs' not in st.session_state:
     st.session_state['logs'] = []
 if 'step' not in st.session_state:
     st.session_state['step'] = 1 
 
-# --- 4. Application Layout ---
+# --- Layout ---
 col1, col2 = st.columns([1, 1.5]) 
 
-# ================= COLUMN 1: INPUTS & WORKFLOW =================
+# COLUMN 1: INPUTS
 with col1:
     st.header("📝 Transaction Details")
-    
     with st.container(border=True):
-        client_name = st.text_input("Client Name", "Hamza Bensliman") # New Input
+        client_name = st.text_input("Client Name", "Hamza Bensliman")
         item_name = st.text_input("Asset Name", "Toyota Camry 2025")
         price = st.number_input("Cost Price (Bank's Cost)", min_value=0, value=25000)
         profit_margin = st.number_input("Profit Margin (%)", min_value=0, value=10)
@@ -146,11 +136,9 @@ with col1:
         
         final_price = price + (price * profit_margin / 100)
         monthly_installment = final_price / duration_months
-        
         st.info(f"Final Selling Price: ${final_price:,.2f}")
 
     st.divider()
-
     st.subheader("⚙️ Execution Workflow")
     
     # Step 1
@@ -198,16 +186,11 @@ with col1:
             st.session_state['step'] = 4
             st.rerun()
             
-    # Completion & PDF
+    # Completion
     elif st.session_state['step'] == 4:
         st.success("✅ Transaction Successfully Audited.")
-        
         st.write("### 📄 Contract Generation")
-        st.caption("Generate a digitally signed PDF contract containing the blockchain audit trail.")
-        
-        # --- PDF Generation Logic ---
         pdf_data = create_contract_pdf(client_name, item_name, final_price, st.session_state['logs'])
-        
         st.download_button(
             label="⬇️ Download Smart Contract (PDF)",
             data=pdf_data,
@@ -215,46 +198,36 @@ with col1:
             mime="application/pdf",
             type="primary"
         )
-        
         st.divider()
         if st.button("Start New Transaction"):
             st.session_state['logs'] = []
             st.session_state['step'] = 1
             st.rerun()
 
-# ================= COLUMN 2: FINANCIAL & AUDIT DASHBOARD =================
+# COLUMN 2: DASHBOARD
 with col2:
     st.header("💰 Financial Dashboard")
-    
     m1, m2, m3 = st.columns(3)
     m1.metric("Total Payable", f"${final_price:,.2f}")
     m2.metric("Monthly Installment", f"${monthly_installment:,.2f}")
     m3.metric("Duration", f"{duration_months} Months")
     
     tab1, tab2 = st.tabs(["📈 Chart", "📋 Schedule Table"])
-    
     schedule_df = calculate_schedule(final_price, duration_months)
-    
     with tab1:
         st.line_chart(schedule_df, x="Month", y="Remaining Balance", color="#004C99")
-        
     with tab2:
         st.dataframe(schedule_df, hide_index=True, use_container_width=True)
 
     st.divider()
-
     st.header("⛓️ Immutable Audit Ledger")
-    
     if len(st.session_state['logs']) > 0:
         audit_df = pd.DataFrame(st.session_state['logs'])
         st.dataframe(audit_df[["Step", "Description", "Sharia Status"]], use_container_width=True, hide_index=True)
-        
-        # Excel Export (Previous Feature)
         buffer = BytesIO()
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
             audit_df.to_excel(writer, index=False, sheet_name='Audit Log')
             schedule_df.to_excel(writer, index=False, sheet_name='Payment Schedule')
-            
         st.download_button(
             label="📥 Download Excel Report",
             data=buffer,
@@ -263,7 +236,5 @@ with col2:
         )
     else:
         st.info("Waiting for transaction steps...")
-    else:
-        st.info("Waiting for transaction steps...")info("Waiting for transaction steps to be recorded on the blockchain...")
 
 
