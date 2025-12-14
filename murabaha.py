@@ -47,7 +47,7 @@ if st.session_state['authentication_status'] == False:
 
 
 # Logout button in the side menu
-with st.sidebarReload the page to go to the application.
+with st.sidebar:
     st.write(f"👤 User: **Admin**")
     if st.button("Log Out"):
         st.session_state['authentication_status'] = False
@@ -236,5 +236,6 @@ with col2:
         )
     else:
         st.info("Waiting for transaction steps...")
+
 
 
