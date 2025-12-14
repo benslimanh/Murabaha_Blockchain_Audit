@@ -5,10 +5,56 @@ import datetime
 from io import BytesIO
 from fpdf import FPDF  
 
+
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Islamic Murabaha System", layout="wide", page_icon="🏦")
 st.title("🏦 Blockchain Murabaha Audit System")
 st.markdown("### AAOIFI-Compliant Audit Engine & Financial Simulator")
+
+
+# --- NEW: Login System ---
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["username"] in ["admin", "banker"] and st.session_state["password"] == "1234":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store password
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        # First run, show inputs
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", on_change=password_entered, key="password")
+        return False
+    
+    elif not st.session_state["password_correct"]:
+        # Password incorrect, show input + error
+        st.text_input("Username", key="username")
+        st.text_input("Password", type="password", on_change=password_entered, key="password")
+        st.error("😕 User not found or wrong password")
+        return False
+    
+    else:
+        # Password correct
+        return True
+
+if check_password():
+    # --- IF LOGIN SUCCESSFUL, RUN THE APP ---
+    
+    # ضع هنا كل الكود السابق الخاص بالتطبيق (بداية من العنوان st.title وما بعده)
+    # قم بعمل Indentation (إزاحة) لكل الكود القديم ليكون داخل هذه الـ if
+    
+    st.sidebar.success(f"Login Successful: {st.session_state['username']}")
+    if st.sidebar.button("Logout"):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+    # ... [PASTE YOUR EXISTING APP CODE HERE] ...
+    st.title("🏦 Blockchain Murabaha Audit System")
+    # ... بقية الكود ...
 
 # --- 2. Helper Functions ---
 
@@ -216,5 +262,8 @@ with col2:
             mime='application/vnd.ms-excel'
         )
     else:
+        st.info("Waiting for transaction steps...")
+    else:
         st.info("Waiting for transaction steps...")info("Waiting for transaction steps to be recorded on the blockchain...")
+
 
