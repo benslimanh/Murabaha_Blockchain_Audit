@@ -17,7 +17,7 @@ st.set_page_config(
 # ==========================================
 with st.sidebar:
     # 1. Logo Area (Placeholder image)
-    st.image("https://cdn-icons-png.flaticon.com/512/2830/2830289.png", width=80)
+    st.image("https://cdn-icons-png.flaticon.com/512/2438/2438078.png", width=90)
     st.markdown("### **ShariaChain** \n *Islamic Finance Audit*")
     st.divider()
     
@@ -225,6 +225,7 @@ with col2:
             st.dataframe(pd.DataFrame(st.session_state['logs']), use_container_width=True)
         else:
             st.info("Waiting for transaction data...")
+
 
 
 
