@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 CUSTOM CSS (Professional Styling)
+# 🎨 CUSTOM CSS (Professional Styling & Visibility Fix)
 # ==========================================
 st.markdown("""
     <style>
@@ -22,7 +22,17 @@ st.markdown("""
         background-color: #f8f9fa;
     }
     
-    /* 2. Button Styling */
+    /* 2. FORCE VISIBILITY of Header and Toolbar */
+    /* This ensures the 'three dots' menu and Deploy button are visible */
+    header {
+        visibility: visible !important;
+    }
+    [data-testid="stToolbar"] {
+        visibility: visible !important;
+        display: block !important;
+    }
+    
+    /* 3. Button Styling (Bank Blue) */
     .stButton>button {
         background-color: #004C99;
         color: white;
@@ -32,19 +42,17 @@ st.markdown("""
         font-weight: bold;
         transition: 0.3s;
     }
+    
+    /* Button Hover Effect */
     .stButton>button:hover {
         background-color: #003366;
-        color: #FFD700;
+        color: #FFD700; /* Gold text */
     }
 
-    /* 3. Clean UI */
-    footer {visibility: hidden;}    /* نبقي هذا السطر لإخفاء "Made with Streamlit" فقط */
+    /* 4. Hide only the footer (Watermark) */
+    footer {visibility: hidden;}
     
-    /* 🔴 لقد حذفت الأسطر التي تخفي القائمة وزر Git لكي يظهرا لك الآن */
-    /* #MainMenu {visibility: hidden;} */
-    /* .stDeployButton {display:none;} */
-    
-    /* 4. Card Styling */
+    /* 5. Card/Container Styling */
     div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
         background-color: white;
         padding: 20px;
@@ -52,7 +60,7 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    /* 5. Auditor Badge */
+    /* 6. Auditor Badge Styling */
     .auditor-badge {
         background-color: #28a745;
         color: white;
@@ -65,7 +73,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🔐 SECURE LOGIN SYSTEM
+# 🔐 SECURE LOGIN SYSTEM (MULTI-ROLE)
 # ==========================================
 if 'authentication_status' not in st.session_state:
     st.session_state['authentication_status'] = False
@@ -78,21 +86,26 @@ def login_page():
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.title("🔒 System Access")
         st.write("Select your role and login.")
+        
         with st.form("login_form"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             submitted = st.form_submit_button("Login")
+            
             if submitted:
+                # ROLE 1: BANK OFFICER
                 if username == "admin" and password == "1234":
                     st.session_state['authentication_status'] = True
                     st.session_state['user_role'] = "Officer"
                     st.rerun()
+                # ROLE 2: SHARIA AUDITOR
                 elif username == "auditor" and password == "5678":
                     st.session_state['authentication_status'] = True
                     st.session_state['user_role'] = "Auditor"
                     st.rerun()
                 else:
                     st.error("❌ Invalid Credentials")
+        
         st.info("Demo Accounts:\n\n👤 **Officer:** admin / 1234\n\n🛡️ **Auditor:** auditor / 5678")
 
 if not st.session_state['authentication_status']:
@@ -100,21 +113,29 @@ if not st.session_state['authentication_status']:
     st.stop()
 
 # ==========================================
-# 🎨 SIDEBAR
+# 🎨 SIDEBAR: DYNAMIC BASED ON ROLE
 # ==========================================
 with st.sidebar:
+    # Use local 'logo.png' if available, else placeholder
     st.image("https://cdn-icons-png.flaticon.com/512/2438/2438078.png", width=90) 
     st.markdown("### **ShariaChain** \n *Digital Trust*")
     st.divider()
+    
+    # Show User Role Badge
     role_color = "blue" if st.session_state['user_role'] == "Officer" else "green"
     st.markdown(f"User Role: :{role_color}[**{st.session_state['user_role']}**]")
+    
     st.header("⚙️ Configuration")
+    
+    # Currency Selection
     currency = st.selectbox("Operating Currency", ["MAD", "USD", "EUR"], index=0)
     
+    # Only Officer can change financial parameters
     if st.session_state['user_role'] == "Officer":
         default_profit = st.slider("Profit Margin (%)", 5.0, 20.0, 10.0, 0.5)
         max_duration = st.number_input("Max Duration (Months)", value=60)
     else:
+        # Auditor sees Read-Only values
         st.info("🔒 View-Only Mode")
         default_profit = 10.0
         max_duration = 60
@@ -128,11 +149,12 @@ with st.sidebar:
 # ==========================================
 # 🏦 MAIN LOGIC
 # ==========================================
+
 st.title(f"🏦 Murabaha Audit Dashboard")
 st.caption(f"Role: {st.session_state['user_role']} | Compliance: AAOIFI No.8")
 st.markdown("---")
 
-# --- Helpers ---
+# --- Helper Functions ---
 def generate_hash(data):
     sha = hashlib.sha256()
     sha.update(data.encode('utf-8'))
@@ -157,11 +179,13 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+    # Header
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(0, 10, txt="Islamic Murabaha Contract", ln=True, align='C')
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 10, txt="Automated Sharia-Compliant Transaction", ln=True, align='C')
     pdf.ln(10)
+    # Details
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Transaction Details:", ln=True)
     pdf.set_font("Arial", size=12)
@@ -170,6 +194,7 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
     pdf.cell(0, 10, txt=f"Total Price: {price:,.2f} {curr}", ln=True)
     pdf.cell(0, 10, txt=f"Date: {datetime.date.today()}", ln=True)
     pdf.ln(10)
+    # Hash
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, txt="Audit Trail (Blockchain Hashes)", ln=True)
     pdf.set_font("Courier", size=9)
@@ -177,19 +202,20 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
         clean_line = f"[{log['Step']}] {log['Timestamp']}\nHash: {log['Block Hash']}\n"
         pdf.multi_cell(0, 8, txt=clean_line, border=1)
         pdf.ln(2)
+    # Signature
     pdf.ln(20)
     pdf.cell(0, 10, txt="_" * 40, ln=True)
     pdf.cell(0, 10, txt="Authorized Signature", ln=True)
     return pdf.output(dest='S').encode('latin-1')
 
-# --- Session State ---
+# --- Session State Initialization ---
 if 'logs' not in st.session_state: st.session_state['logs'] = []
 if 'step' not in st.session_state: st.session_state['step'] = 1 
-# [NEW] Save transaction details so Auditor can access them
+# Save transaction details so Auditor can access them later
 if 'tx_details' not in st.session_state: 
     st.session_state['tx_details'] = {"client": "Unknown", "asset": "Unknown", "price": 0.0}
 
-# --- SCENARIOS ---
+# --- DYNAMIC LAYOUT BASED ON ROLE ---
 
 # SCENARIO 1: AUDITOR (READ ONLY)
 if st.session_state['user_role'] == "Auditor":
@@ -207,11 +233,11 @@ if st.session_state['user_role'] == "Auditor":
         
         last_step = st.session_state['logs'][-1]['Step']
         
-        # Check: Is sequence complete?
+        # Check: Is sequence complete? (Must end with '3. Bay'')
         if "3. Bay'" in last_step:
             st.success("✅ STATUS: COMPLETE. Transaction complies with AAOIFI standards.")
             
-            # [FIXED] Use download_button and retrieve data from session_state
+            # Retrieve data from session state for PDF generation
             details = st.session_state['tx_details']
             pdf_data = create_contract_pdf(details['client'], details['asset'], details['price'], st.session_state['logs'], currency)
             
@@ -238,7 +264,7 @@ else:
     with col1:
         st.subheader("📝 New Transaction")
         with st.container(border=True):
-            # [FIXED] Save inputs to variables for session state
+            # Inputs
             c_name = st.text_input("Client Name", "Hamza Bensliman")
             a_name = st.text_input("Asset Name", "Apartment Fes City")
             
@@ -246,11 +272,12 @@ else:
             profit_margin = st.number_input("Profit Margin (%)", min_value=0.0, value=default_profit)
             duration_months = st.number_input("Duration (Months)", min_value=1, max_value=max_duration, value=12)
             
+            # Calculations
             final_price = price + (price * profit_margin / 100)
             monthly_installment = final_price / duration_months
             st.success(f"Final Price: {final_price:,.2f} {currency}")
             
-            # [NEW] Update Session State with current details
+            # Update Session State with current details for the Auditor
             st.session_state['tx_details'] = {
                 "client": c_name,
                 "asset": a_name,
@@ -259,7 +286,7 @@ else:
 
         st.divider()
         
-        # Workflow
+        # Workflow Logic
         if st.session_state['step'] == 1:
             st.info("Step 1: Initiate Promise to Purchase")
             if st.button("1. Submit Promise (Wa'd)", type="primary"):
@@ -277,6 +304,7 @@ else:
             st.warning("⚠️ Action Required: Bank must acquire possession.")
             if st.button("2. Execute Purchase (Qabd)"):
                 timestamp = str(datetime.datetime.now())
+                # Chain the previous hash
                 prev_hash = st.session_state['logs'][-1]['Block Hash']
                 data_to_hash = f"BUY-{a_name}-{prev_hash}"
                 block_hash = generate_hash(data_to_hash)
