@@ -4,7 +4,7 @@ import hashlib
 import datetime
 from fpdf import FPDF
 
-# --- 1. Page Configuration ---
+# --- 1. Page Configuration (Must be the first command) ---
 st.set_page_config(
     page_title="ShariaChain | Audit System", 
     layout="wide", 
@@ -13,15 +13,59 @@ st.set_page_config(
 )
 
 # ==========================================
+# 🎨 CUSTOM CSS (Professional Styling)
+# ==========================================
+st.markdown("""
+    <style>
+    /* Change background color to a very light grey (Professional Look) */
+    .stApp {
+        background-color: #f8f9fa;
+    }
+    
+    /* Style buttons to be Bank Blue with rounded corners */
+    .stButton>button {
+        background-color: #004C99;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    
+    /* Hover effect for buttons */
+    .stButton>button:hover {
+        background-color: #003366;
+        color: #FFD700; /* Gold text on hover */
+    }
+
+    /* Hide default Streamlit menu, header, and footer for a clean app feel */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Improve container styling (Card-like effect) */
+    div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ==========================================
 # 🎨 SIDEBAR: SETTINGS & BRANDING
 # ==========================================
 with st.sidebar:
-    # 1. Logo Area (Placeholder image)
-    st.image("https://cdn-icons-png.flaticon.com/512/2438/2438078.png", width=90)
-    st.markdown("### **ShariaChain** \n *Islamic Finance Audit*")
+    # 1. Logo Area 
+    # NOTE: Replace the URL below with 'logo.png' if you have a local file
+    st.image("https://cdn-icons-png.flaticon.com/512/2438/2438078.png", width=90) 
+    
+    st.markdown("### **ShariaChain** \n *Digital Trust*")
     st.divider()
     
-    # 2. Bank Configuration
+    # 2. Bank Configuration (System Settings)
     st.header("⚙️ System Configuration")
     
     # Currency Selection
@@ -48,6 +92,7 @@ if 'authentication_status' not in st.session_state:
     st.session_state['authentication_status'] = False
 
 def login_page():
+    # Centered login form design
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
@@ -57,15 +102,17 @@ def login_page():
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             if st.form_submit_button("Access System"):
+                # Hardcoded credentials for Demo (Admin / 1234)
                 if username == "admin" and password == "1234":
                     st.session_state['authentication_status'] = True
                     st.rerun()
                 else:
                     st.error("❌ Access Denied")
 
+# Check authentication state before showing the main app
 if not st.session_state['authentication_status']:
     login_page()
-    st.stop()
+    st.stop() # Stop execution if not logged in
 
 # ==========================================
 # 🏦 MAIN APPLICATION LOGIC
@@ -76,12 +123,15 @@ st.caption(f"Current System Currency: {currency} | AAOIFI Standard No.8 Complian
 st.markdown("---")
 
 # --- Helper Functions ---
+
 def generate_hash(data):
+    """Generates SHA-256 hash for blockchain integrity."""
     sha = hashlib.sha256()
     sha.update(data.encode('utf-8'))
     return sha.hexdigest()
 
 def calculate_schedule(total_amount, months):
+    """Calculates monthly amortization schedule."""
     monthly_payment = total_amount / months
     schedule = []
     remaining_balance = total_amount
@@ -97,6 +147,7 @@ def calculate_schedule(total_amount, months):
     return pd.DataFrame(schedule)
 
 def create_contract_pdf(client_name, asset, price, logs, curr):
+    """Generates a PDF Smart Contract with embedded Audit Trail."""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -106,7 +157,7 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 10, txt="Automated Sharia-Compliant Transaction", ln=True, align='C')
     pdf.ln(10)
-    # Details
+    # Transaction Details
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Transaction Details:", ln=True)
     pdf.set_font("Arial", size=12)
@@ -115,7 +166,7 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
     pdf.cell(0, 10, txt=f"Total Price: {price:,.2f} {curr}", ln=True)
     pdf.cell(0, 10, txt=f"Date: {datetime.date.today()}", ln=True)
     pdf.ln(10)
-    # Hash
+    # Audit Trail (Hashes)
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, txt="Audit Trail (Blockchain Hashes)", ln=True)
     pdf.set_font("Courier", size=9)
@@ -123,20 +174,20 @@ def create_contract_pdf(client_name, asset, price, logs, curr):
         clean_line = f"[{log['Step']}] {log['Timestamp']}\nHash: {log['Block Hash']}\n"
         pdf.multi_cell(0, 8, txt=clean_line, border=1)
         pdf.ln(2)
-    # Signature
+    # Signature Placeholder
     pdf.ln(20)
     pdf.cell(0, 10, txt="_" * 40, ln=True)
     pdf.cell(0, 10, txt="Authorized Signature", ln=True)
     return pdf.output(dest='S').encode('latin-1')
 
-# --- Session State ---
+# --- Session State Initialization ---
 if 'logs' not in st.session_state: st.session_state['logs'] = []
 if 'step' not in st.session_state: st.session_state['step'] = 1 
 
-# --- Layout ---
+# --- Main Layout (Columns) ---
 col1, col2 = st.columns([1, 1.5]) 
 
-# LEFT COLUMN: Inputs & Actions
+# LEFT COLUMN: Inputs & Workflow Actions
 with col1:
     st.subheader("📝 New Transaction")
     with st.container(border=True):
@@ -148,13 +199,14 @@ with col1:
         profit_margin = st.number_input("Profit Margin (%)", min_value=0.0, value=default_profit)
         duration_months = st.number_input("Duration (Months)", min_value=1, max_value=max_duration, value=12)
         
+        # Calculations
         final_price = price + (price * profit_margin / 100)
         monthly_installment = final_price / duration_months
         st.success(f"Final Price: {final_price:,.2f} {currency}")
 
     st.divider()
     
-    # Workflow Steps
+    # Workflow Logic (State Machine)
     if st.session_state['step'] == 1:
         st.info("Step 1: Initiate Promise to Purchase")
         if st.button("1. Submit Promise (Wa'd)", type="primary"):
@@ -172,6 +224,7 @@ with col1:
         st.warning("⚠️ Action Required: Bank must acquire possession.")
         if st.button("2. Execute Purchase (Qabd)"):
             timestamp = str(datetime.datetime.now())
+            # Chain the previous hash to ensure sequence integrity
             prev_hash = st.session_state['logs'][-1]['Block Hash']
             data_to_hash = f"BUY-{item_name}-{prev_hash}"
             block_hash = generate_hash(data_to_hash)
@@ -200,12 +253,14 @@ with col1:
         st.success("✅ Transaction Audited & Closed")
         pdf_data = create_contract_pdf(client_name, item_name, final_price, st.session_state['logs'], currency)
         st.download_button("⬇️ Download Contract (PDF)", pdf_data, "Smart_Contract.pdf", "application/pdf")
+        
+        # Reset Logic
         if st.button("Start New Transaction"):
             st.session_state['logs'] = []
             st.session_state['step'] = 1
             st.rerun()
 
-# RIGHT COLUMN: Dashboard
+# RIGHT COLUMN: Dashboard & Visualization
 with col2:
     st.subheader("📊 Financial Overview")
     m1, m2, m3 = st.columns(3)
@@ -225,7 +280,4 @@ with col2:
             st.dataframe(pd.DataFrame(st.session_state['logs']), use_container_width=True)
         else:
             st.info("Waiting for transaction data...")
-
-
-
 
