@@ -39,15 +39,16 @@ st.markdown("""
         color: #FFD700; /* Gold text */
     }
 
-    /* 3. Hiding Streamlit Branding */
-    /* We only hide the footer (watermark). */
-    /* We keep the header visible so you can see the Sidebar Toggle Arrow (>). */
-    footer {visibility: hidden;}
+    /* 3. Clean UI: Hiding Watermarks but KEEPING Header visible */
+    footer {visibility: hidden;}    /* Hides 'Made with Streamlit' */
+    #MainMenu {visibility: hidden;} /* Hides the top-right menu (optional) */
     
-    /* 4. Hide the Deploy Button (Clean UI) */
+    /* We DO NOT hide 'header' so you can see the sidebar arrow (>) */
+
+    /* 4. Hide the Deploy Button */
     .stDeployButton {display:none;}
     
-    /* 5. Card/Container Styling (White boxes with shadow) */
+    /* 5. Card/Container Styling */
     div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
         background-color: white;
         padding: 20px;
@@ -121,7 +122,9 @@ with st.sidebar:
     st.markdown(f"User Role: :{role_color}[**{st.session_state['user_role']}**]")
     
     st.header("⚙️ Configuration")
-    currency = st.selectbox("Currency", ["MAD", "USD", "EUR"], index=0)
+    
+    # --- CURRENCY SELECTION IS HERE ---
+    currency = st.selectbox("Operating Currency", ["MAD", "USD", "EUR"], index=0)
     
     # Only Officer can change financial parameters
     if st.session_state['user_role'] == "Officer":
@@ -147,7 +150,7 @@ st.title(f"🏦 Murabaha Audit Dashboard")
 st.caption(f"Role: {st.session_state['user_role']} | Compliance: AAOIFI No.8")
 st.markdown("---")
 
-# --- Helper Functions (Same as before) ---
+# --- Helper Functions ---
 def generate_hash(data):
     sha = hashlib.sha256()
     sha.update(data.encode('utf-8'))
@@ -231,10 +234,12 @@ else:
             client_name = st.text_input("Client Name", "Hamza Bensliman")
             item_name = st.text_input("Asset Name", "Apartment Fes City")
             
+            # Inputs
             price = st.number_input(f"Cost Price ({currency})", min_value=0, value=250000)
             profit_margin = st.number_input("Profit Margin (%)", min_value=0.0, value=default_profit)
             duration_months = st.number_input("Duration (Months)", min_value=1, max_value=max_duration, value=12)
             
+            # Calculations
             final_price = price + (price * profit_margin / 100)
             monthly_installment = final_price / duration_months
             st.success(f"Final Price: {final_price:,.2f} {currency}")
