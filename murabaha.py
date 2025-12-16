@@ -17,22 +17,52 @@ st.set_page_config(
 # ==========================================
 st.markdown("""
     <style>
-    .stApp { background-color: #f8f9fa; }
-    .stButton>button {
-        background-color: #004C99; color: white;
-        border-radius: 8px; border: none; padding: 10px 24px;
-        font-weight: bold; transition: 0.3s;
+    /* 1. Global Background Settings */
+    .stApp {
+        background-color: #f8f9fa;
     }
-    .stButton>button:hover { background-color: #003366; color: #FFD700; }
-    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+    
+    /* 2. Button Styling (Bank Blue) */
+    .stButton>button {
+        background-color: #004C99;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    
+    /* Button Hover Effect */
+    .stButton>button:hover {
+        background-color: #003366;
+        color: #FFD700; /* Gold text */
+    }
+
+    /* 3. Hiding Streamlit Branding */
+    /* We only hide the footer (watermark). */
+    /* We keep the header visible so you can see the Sidebar Toggle Arrow (>). */
+    footer {visibility: hidden;}
+    
+    /* 4. Hide the Deploy Button (Clean UI) */
+    .stDeployButton {display:none;}
+    
+    /* 5. Card/Container Styling (White boxes with shadow) */
     div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
-        background-color: white; padding: 20px; border-radius: 10px;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    /* Auditor Mode Specific Style */
+    
+    /* 6. Auditor Badge Styling */
     .auditor-badge {
-        background-color: #28a745; color: white; padding: 5px 10px;
-        border-radius: 15px; font-size: 12px; font-weight: bold;
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -279,4 +309,5 @@ else:
                 st.dataframe(pd.DataFrame(st.session_state['logs']), use_container_width=True)
             else:
                 st.info("Waiting for transaction data...")
+
 
