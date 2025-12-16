@@ -211,16 +211,33 @@ if st.session_state['user_role'] == "Auditor":
     st.info("🛡️ You are logged in as a Sharia Auditor. You have Read-Only access to the Blockchain Ledger.")
     
     st.subheader("⛓️ Immutable Audit Ledger")
+    
     if len(st.session_state['logs']) > 0:
-        # Show logs in a nice table
+        # 1. Show the Ledger Table
         audit_df = pd.DataFrame(st.session_state['logs'])
         st.table(audit_df[['Step', 'Timestamp', 'Status', 'Block Hash']])
         
-        st.success("✅ All hashes verified. Sequence integrity is intact.")
+        st.markdown("---")
+        st.subheader("🧐 Compliance Analysis")
         
-        # Download Report Button
-        if st.button("📥 Download Audit Report"):
-            st.toast("Audit Report Generated Successfully!")
+        # 2. AUTOMATED CHECKS (التحقق الذكي)
+        last_step = st.session_state['logs'][-1]['Step']
+        
+        # Check A: Is the sequence complete? (Must end with '3. Bay'')
+        if "3. Bay'" in last_step:
+            st.success("✅ STATUS: COMPLETE. The transaction fully complies with AAOIFI sequence (Wa'd -> Qabd -> Bay').")
+            # Show download button only if complete
+            if st.button("📥 Download Final Audit Report"):
+                st.toast("Audit Report Generated Successfully!")
+        else:
+            # If incomplete, show specific warning based on where it stopped
+            st.warning("⚠️ STATUS: INCOMPLETE. The transaction is still in progress.")
+            
+            if "1. Wa'd" in last_step:
+                st.error("❌ ISSUE: Bank possesses only the 'Promise'. Asset NOT yet purchased.")
+            elif "2. Qabd" in last_step:
+                st.error("❌ ISSUE: Bank holds the Asset (Qabd), but has NOT sold it to the client yet.")
+                
     else:
         st.warning("No transactions found in the current session ledger.")
 
@@ -314,5 +331,6 @@ else:
                 st.dataframe(pd.DataFrame(st.session_state['logs']), use_container_width=True)
             else:
                 st.info("Waiting for transaction data...")
+
 
 
