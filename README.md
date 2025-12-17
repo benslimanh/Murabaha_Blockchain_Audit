@@ -55,3 +55,7 @@ This project is currently a **Proof of Concept (PoC)**. Future development stage
 2.  **Identity Verification:** Integrating KYC/AML APIs to verify the "Client" and "Bank" identities digitally.
 3.  **Core Banking Integration:** Connecting the engine with real banking APIs (e.g., Temenos or Oracle Flexcube) to fetch real asset data.
 4.  **AI Fraud Detection:** Using Machine Learning to flag suspicious patterns in transaction timestamps.```
+5.  ## 📄 Project Documentation
+This project is based on the research paper: **"Automating Trust: A Technical Framework for Murabaha using Blockchain"**.
+
+[👉 Read the Full White Paper (PDF)](./Whitepaper_Automatig_Trust.pdf)
