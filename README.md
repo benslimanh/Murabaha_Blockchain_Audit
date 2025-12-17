@@ -58,4 +58,4 @@ This project is currently a **Proof of Concept (PoC)**. Future development stage
 5.  ## 📄 Project Documentation
 This project is based on the research paper: **"Automating Trust: A Technical Framework for Murabaha using Blockchain"**.
 
-[👉 Read the Full White Paper (PDF)](./Whitepaper_Automatig_Trust.pdf)
+[👉 Read the Full White Paper (PDF)](Whitepaper_Automating_Trust.pdf)
